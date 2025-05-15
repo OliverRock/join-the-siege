@@ -1,7 +1,7 @@
 # Solution for document classification
 
 
-**Qualifier:** I do not consider this anywhere near production ready. I tried to keep to close to 3 hours, altho it ended up more like 4 hours. I cut a lot of corners and could list hundreds of ways to improve it. These include: general code quality, testing the API, testing the models, CICD, clear seperation between model training and model inference, data versioning, logging, monitoring, etc
+**Qualifier:** I do not consider this anywhere near production ready. I tried to keep to close to 3 hours, altho it ended up more like 4 hours. I cut a lot of corners and could list hundreds of ways to improve it. These include: general code quality, testing the API, testing the models, CICD, clear separation between model training and model inference, data versioning, logging, monitoring, etc
 
 
 - **Functionality**: Does the classifier work as expected?
@@ -30,7 +30,7 @@ Some basic tests on the text extraction but there is no tests on model performan
 
 - **Deployment**: Is the classifier ready for deployment in a production environment?
 
-No. Needs CICD and testing.
+No. Needs CICD, testing and Infrastructure as Code.
 
 ## Getting Started
 1. Clone the repository:
