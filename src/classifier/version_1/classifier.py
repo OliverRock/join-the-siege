@@ -122,7 +122,7 @@ class DocumentClassifier:
         """Classify a document based on its text content,"""
         # Start timing for inference
         start_time = time.time()
-        
+
         if not self.trained:
             # Handle untrained model with default values
             return TextClassificationResult(
@@ -132,7 +132,7 @@ class DocumentClassifier:
                 model_version=self.model_name,
                 inference_time_sec=time.time() - start_time,
                 document_length=len(text),
-                document_id=document_id
+                document_id=document_id,
             )
 
         if not text.strip():
@@ -144,11 +144,13 @@ class DocumentClassifier:
                 model_version=self.model_name,
                 inference_time_sec=time.time() - start_time,
                 document_length=0,
-                document_id=document_id
+                document_id=document_id,
             )
 
         # Reshape the text into a list to create a 2D array with a single sample
-        text_sample = [text]  # This creates a list with one item, which will be transformed correctly
+        text_sample = [
+            text
+        ]  # This creates a list with one item, which will be transformed correctly
 
         # Make prediction
         predicted_category = self.pipeline.predict(text_sample)[0]
@@ -182,7 +184,7 @@ class DocumentClassifier:
             print(f"Warning: Could not get decision values: {str(e)}")
             confidence = 1.0  # Default confidence
             all_scores = {predicted_category: confidence}
-        
+
         # Calculate inference time
         inference_time_sec = time.time() - start_time
 
@@ -194,7 +196,7 @@ class DocumentClassifier:
             model_version=self.model_name,
             inference_time_sec=inference_time_sec,
             document_length=len(text),
-            document_id=document_id
+            document_id=document_id,
         )
 
     def save_model(self, model_path: str) -> None:

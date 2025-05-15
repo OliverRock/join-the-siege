@@ -69,7 +69,7 @@ def main():
             content = generate_sample(doc_type, prompt)
             if content:
                 samples.append({"text": content, "label": doc_type})
-                print(f"Generated {doc_type} sample {i+1}/{num_samples_per_class}")
+                print(f"Generated {doc_type} sample {i + 1}/{num_samples_per_class}")
             time.sleep(1.2)  # avoid rate limit
 
     with open(f"{output_dir}/samples.json", "w") as f:

@@ -1,5 +1,3 @@
-import os
-
 import pytest
 
 # Import your DocumentTextExtractor class
@@ -40,7 +38,6 @@ class TestDocumentTextExtractor:
 
         # Compare with expected output (strip to remove any extra whitespace)
         assert expected_content.strip() in extracted_text.strip()
-
 
     @pytest.mark.parametrize(
         "filename, expected",

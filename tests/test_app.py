@@ -23,4 +23,3 @@ def test_no_selected_file(client):
         "/classify_file", data=data, content_type="multipart/form-data"
     )
     assert response.status_code == 400
-
