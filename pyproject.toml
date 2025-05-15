@@ -1,0 +1,37 @@
+[tool.ruff]
+# Enable Ruff's formatter
+target-version = "py312"  # Targeting Python 3.12
+line-length = 88
+indent-width = 4
+
+# Linting rules
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "W",   # pycodestyle warnings
+    "C90", # mccabe complexity
+    "N",   # pep8-naming
+    "B",   # flake8-bugbear
+]
+
+# Exclude certain files
+exclude = [
+    ".git",
+    ".ruff_cache",
+    "__pycache__",
+    "venv",
+    ".venv",
+    "*.egg-info",
+]
+
+# Ignore specific rules
+ignore = [
+    # Add any rules you want to ignore
+    "D100",  # Missing docstring in public module
+    "D104",  # Missing docstring in public package
+]
+
+[tool.ruff.mccabe]
+max-complexity = 10  # Maximum cyclomatic complexity
+

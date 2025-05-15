@@ -1,44 +1,36 @@
-# Heron Coding Challenge - File Classifier
-
-## Overview
-
-At Heron, we’re using AI to automate document processing workflows in financial services and beyond. Each day, we handle over 100,000 documents that need to be quickly identified and categorised before we can kick off the automations.
-
-This repository provides a basic endpoint for classifying files by their filenames. However, the current classifier has limitations when it comes to handling poorly named files, processing larger volumes, and adapting to new industries effectively.
-
-**Your task**: improve this classifier by adding features and optimisations to handle (1) poorly named files, (2) scaling to new industries, and (3) processing larger volumes of documents.
-
-This is a real-world challenge that allows you to demonstrate your approach to building innovative and scalable AI solutions. We’re excited to see what you come up with! Feel free to take it in any direction you like, but we suggest:
+# Solution for document classification
 
 
-### Part 1: Enhancing the Classifier
-
-- What are the limitations in the current classifier that's stopping it from scaling?
-- How might you extend the classifier with additional technologies, capabilities, or features?
+**Qualifier:** I do not consider this anywhere near production ready. I tried to keep to close to 3 hours, altho it ended up more like 4 hours. I cut a lot of corners and could list hundreds of ways to improve it. These include: general code quality, testing the API, testing the models, CICD, clear separation between model training and model inference, data versioning, logging, monitoring, etc
 
 
-### Part 2: Productionising the Classifier 
-
-- How can you ensure the classifier is robust and reliable in a production environment?
-- How can you deploy the classifier to make it accessible to other services and users?
-
-We encourage you to be creative! Feel free to use any libraries, tools, services, models or frameworks of your choice
-
-### Possible Ideas / Suggestions
-- Train a classifier to categorize files based on the text content of a file
-- Generate synthetic data to train the classifier on documents from different industries
-- Detect file type and handle other file formats (e.g., Word, Excel)
-- Set up a CI/CD pipeline for automatic testing and deployment
-- Refactor the codebase to make it more maintainable and scalable
-
-## Marking Criteria
 - **Functionality**: Does the classifier work as expected?
+
+In a very basic way it works. The API exists an you can POST a file and it responds with classification category.
+
 - **Scalability**: Can the classifier scale to new industries and higher volumes?
+
+New industries: You would need to retrain the model with more data and more categories.
+
+Higher volumes: Depends on if the underlying compute will scale. Personally I would deploy to kubernetes and allow the pods to scale horizontally. I think the bigger problem of scaling to a huge volume would be monitoring and understanding incorrect classicatin rates. I would spend time creating an SLI/SLO.
+
 - **Maintainability**: Is the codebase well-structured and easy to maintain?
+
+No. The code base needs a refactor before being deployed. It is not very well structured to build upon. I would create a better structure for the API, modules for routes, auth, etc. I would improve monitoring. I would save the results of inference so that you could analyze performance.
+
+
+
 - **Creativity**: Are there any innovative or creative solutions to the problem?
+
+Not really
+
 - **Testing**: Are there tests to validate the service's functionality?
+
+Some basic tests on the text extraction but there is no tests on model performance.
+
 - **Deployment**: Is the classifier ready for deployment in a production environment?
 
+No. Needs CICD, testing and Infrastructure as Code.
 
 ## Getting Started
 1. Clone the repository:
@@ -69,8 +61,86 @@ We encourage you to be creative! Feel free to use any libraries, tools, services
     pytest
     ```
 
-## Submission
+## My Solution
 
-Please aim to spend 3 hours on this challenge.
+My approach to build a document classification system relies on a two step approach.
 
-Once completed, submit your solution by sharing a link to your forked repository. Please also provide a brief write-up of your ideas, approach, and any instructions needed to run your solution. 
+First is a text extraction system and then a text classification model.
+
+## Text extraction
+
+To process more data file types I created a module for extracting text from different files.
+
+There is nothing complex here, I  use standard python libs.
+
+What I would consider in the future:
+- Test with hand written text
+- Get more than just textual data from files to provide to the classification model. eg tables and images
+
+## Classification Model development
+
+### Data
+To train the model I generated fake data using OpenAI. Using 7 categories and 100 examples for each category.
+I used included an `unknown` category so that the model is not forced to choose from one category.
+
+The script to generate data is found at: `src/classifier/data/generate_data.py`
+
+I would prefer to include some real data in the training, data from different LLMs and I would play around with the temperature parameter in OpenAI as this increases the randomness in the responses.
+
+I think that the poor quality data is the primary limitation of this model
+
+### Model
+
+I researched which models are commonly used for text classification tasks. I found that Term Frequency-Inverse Document Frequency (TF-IDF) with support vector machines (SVM) were often used as a baseline. So I used `sklearn` to train the model. 
+
+Training was very fast on a macbook air.
+
+I did not do any experiments to try to improve the model as the accuracy was good even with small dataset.
+
+
+Training results:
+
+```
+Training on 560 documents, testing on 140 documents
+
+Training Results:
+Overall Accuracy: 1.0000
+
+Performance by category:
+  bank_statement: Precision=1.0000, Recall=1.0000, F1-score=1.0000, Samples=25.0
+  drivers_license: Precision=1.0000, Recall=1.0000, F1-score=1.0000, Samples=22.0
+  insurance_policy: Precision=1.0000, Recall=1.0000, F1-score=1.0000, Samples=21.0
+  invoice: Precision=1.0000, Recall=1.0000, F1-score=1.0000, Samples=20.0
+  passport: Precision=1.0000, Recall=1.0000, F1-score=1.0000, Samples=14.0
+  unknown: Precision=1.0000, Recall=1.0000, F1-score=1.0000, Samples=20.0
+  utility_bill: Precision=1.0000, Recall=1.0000, F1-score=1.0000, Samples=18.0
+
+Model trained on 700 documents. 7 categories.
+```
+
+### Further notes on the classification model
+
+I did further manual tests with the examples provided and some examples of my own documents. I found the accuracy on invoice was very low. I expect that the invoices generated by chatgpt were too similar. 
+
+I think the improvements in this model would mainly come from improving the underlying data.
+
+Inference is generally fast.
+
+
+## Repo structure
+
+```
+.
+├── files/                          # Sample document files for testing and demonstration
+├── pyproject.toml                  # Project metadata and build configuration
+├── requirements.txt                # Project dependencies
+├── src/                            # Source code directory
+│   ├── app.py                      # Main application entry point
+│   ├── models.py                   # Shared data models/schemas
+│   ├── classifier/                 # Document classification module
+│   │   ├── baseline/               # The original classifier (No longer connected to main codebase)
+│   │   ├── data/                   # Data for model training and scripts for collecting it
+│   │   └── version_1/              # Improved classifier implementation
+│   └── text_extraction/            # Text extraction from different document types
+└── tests/                          # Test directory
+```
